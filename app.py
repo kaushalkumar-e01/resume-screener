@@ -40,12 +40,13 @@ st.markdown(
         padding: 1rem;
         margin-bottom: 1rem;
     }
-    div[data-testid="stMetric"] {
-        background-color: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-    }
+    div[data-testid="stMetric"], div[data-testid="stExpander"] {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    border: 1px solid #EAE6DF;
+}
     </style>
     """,
     unsafe_allow_html=True,
@@ -83,9 +84,11 @@ pg = st.navigation(
 # Sidebar System Footer
 with st.sidebar:
     st.markdown("---")
-    st.caption("🎯 **AI Resume Screener**")
-    st.caption("🔒 Environment: `.env` Protected")
-    st.caption("⚡ Streamlit 1.38+ Multipage Architecture")
+    st.info(
+        "**Intelligent Applicant Screening**\n\n"
+        "Accelerate your hiring workflow. Instantly process, score, and shortlist "
+        "candidate profiles with high-precision artificial intelligence."
+    )
 
 # Run Current Page
 pg.run()
