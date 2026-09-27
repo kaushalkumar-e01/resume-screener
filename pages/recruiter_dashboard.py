@@ -14,6 +14,7 @@ import pandas as pd
 import streamlit as st
 from screener import evaluate_candidate_batch
 from utils import extract_text_from_pdf
+import base64
 
 # Ensure environment variables are loaded
 load_dotenv()
@@ -23,7 +24,17 @@ MAX_UPLOAD_SIZE_MB = 10
 MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
 
 # Page Header
-st.markdown('<div class="main-header">📊 Recruiter Command Center</div>', unsafe_allow_html=True)
+with open("recruiter_command.png", "rb") as image_file:
+    encoded_string = base64.b64encode(image_file.read()).decode()
+
+html_code = f'''
+<div class="main-header">
+    <img src="data:image/png;base64,{encoded_string}" width="28" style="vertical-align: middle; padding-bottom: 4px; margin-right: 5px;"> 
+    Recruiter Command Center
+</div>
+'''
+
+st.markdown(html_code, unsafe_allow_html=True)
 st.markdown(
     '<div class="sub-header">Review applicant resumes, define job requirements, and run AI-powered candidate ranking with ruthless recruiter precision.</div>',
     unsafe_allow_html=True,
@@ -246,7 +257,7 @@ st.subheader("3. AI Evaluation Pipeline")
 exec_col1, exec_col2 = st.columns([1, 2])
 
 with exec_col1:
-    run_screening = st.button("🚀 Run AI Candidate Screening", type="primary", use_container_width=True)
+    run_screening = st.button(" Run AI Candidate Screening", type="primary", use_container_width=True)
 
 with exec_col2:
     demo_preview = st.button("✨ Load Demo Preview Data", use_container_width=False)
@@ -501,7 +512,7 @@ else:
             <h4 style="color: #64748B; margin-bottom: 0.5rem;">No Screened Candidates Yet</h4>
             <p style="color: #94A3B8; max-width: 550px; margin: 0 auto; font-size: 0.95rem;">
                 Click <strong>Load 3 Sample Resumes</strong> or upload PDFs, load a Job Description, 
-                and click <strong>🚀 Run AI Candidate Screening</strong> to generate a real-time ranked leaderboard.
+                and click <strong> Run AI Candidate Screening</strong> to generate a real-time ranked leaderboard.
             </p>
         </div>
         """,

@@ -64,7 +64,7 @@ if "analysis_results" not in st.session_state:
 recruiter_page = st.Page(
     "pages/recruiter_dashboard.py",
     title="Recruiter Dashboard",
-    icon="📊",
+    icon="👤",
     default=True,
 )
 
