@@ -1,0 +1,60 @@
+%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Count 1/Kids[3 0 R]>>
+endobj
+3 0 obj
+<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>
+endobj
+4 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>
+endobj
+5 0 obj
+<</Length 1250>>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Jordan Lee) Tj T*
+(jordan.lee@email.com | \(555\) 482-1920) Tj T*
+T* () Tj
+T* (PROFESSIONAL SUMMARY) Tj
+(Full-Stack Web Developer with 3 years of experience specializing in React, Node.js, and Python backend services.) Tj T*
+(Experienced in building RESTful APIs, database design, and cloud containerization.) Tj T*
+T* () Tj
+(TECHNICAL SKILLS) Tj T*
+(- Core: Python, JavaScript, Node.js, Express, React, HTML5, CSS3) Tj T*
+(- Databases: PostgreSQL, MongoDB, Redis) Tj T*
+(- DevOps: Docker, AWS ECS, Git, Linux) Tj T*
+(- AI Exposure: Basic experimentation with OpenAI API endpoints) Tj T*
+T* () Tj
+T* (PROFESSIONAL EXPERIENCE) Tj
+(Full-Stack Developer | Nexus Interactive \(2021 - Present\)) Tj T*
+(- Engineered client-facing web portals utilizing React, TypeScript, and Python REST APIs.) Tj T*
+(- Integrated PostgreSQL databases with optimized query performance and indexing.) Tj T*
+(- Containerized legacy backend services with Docker for scalable AWS deployments.) Tj T*
+T* () Tj
+(Junior Web Developer | PixelCraft Studios \(2020 - 2021\)) Tj T*
+(- Built modern responsive interfaces and integrated third-party RESTful APIs.) Tj T*
+T* () Tj
+T* (EDUCATION) Tj
+(B.S. in Software Engineering | State University) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000054 00000 n 
+0000000105 00000 n 
+0000000217 00000 n 
+0000000280 00000 n 
+trailer
+<</Size 6/Root 1 0 R>>
+startxref
+1580
+%%EOF

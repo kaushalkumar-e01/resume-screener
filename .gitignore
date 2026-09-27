@@ -1,0 +1,26 @@
+# Python Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Environment and sensitive secrets
+.env
+.streamlit/secrets.toml
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Output and temp files
+uploads/
+temp/
+*.pdf
+!sample_resumes/*.pdf

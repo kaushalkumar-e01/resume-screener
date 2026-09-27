@@ -1,0 +1,61 @@
+%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Count 1/Kids[3 0 R]>>
+endobj
+3 0 obj
+<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>
+endobj
+4 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>
+endobj
+5 0 obj
+<</Length 1464>>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Alex Rivera) Tj T*
+(alex.rivera@email.com | \(555\) 019-2834 | github.com/alexrivera) Tj T*
+T* () Tj
+T* (SUMMARY) Tj
+(Senior Full-Stack AI Engineer with 5+ years of experience building scalable generative AI web applications.) Tj T*
+(Proven expertise integrating Gemini API, FastAPI, Python, PostgreSQL, and Streamlit.) Tj T*
+T* () Tj
+T* (SKILLS) Tj
+(- Languages: Python, JavaScript, TypeScript, SQL) Tj T*
+(- Frameworks & Tools: FastAPI, Streamlit, Docker, PostgreSQL, React, Pydantic) Tj T*
+(- AI & Machine Learning: Google GenAI SDK \(Gemini\), Prompt Engineering, Structured Outputs, LangChain) Tj T*
+(- Cloud & DevOps: GCP, Cloud Run, Docker, Git CI/CD) Tj T*
+T* () Tj
+T* (EXPERIENCE) Tj
+(Lead AI Engineer | Apex Cloud Solutions \(2022 - Present\)) Tj T*
+(- Architected end-to-end document processing pipelines using Gemini API and Pydantic structured schemas.) Tj T*
+(- Built high-throughput microservices using FastAPI and PostgreSQL handling 2M+ daily requests.) Tj T*
+(- Developed internal recruiter screening tools using Streamlit and Docker on Google Cloud Platform.) Tj T*
+T* () Tj
+(Full-Stack Developer | InnovateTech Labs \(2019 - 2022\)) Tj T*
+(- Developed responsive web frontends with React and robust RESTful APIs in Python.) Tj T*
+(- Implemented automated CI/CD pipelines reducing deployment friction by 40%.) Tj T*
+T* () Tj
+T* (EDUCATION) Tj
+(B.S. in Computer Science | University of California, Berkeley) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000054 00000 n 
+0000000105 00000 n 
+0000000217 00000 n 
+0000000280 00000 n 
+trailer
+<</Size 6/Root 1 0 R>>
+startxref
+1794
+%%EOF
