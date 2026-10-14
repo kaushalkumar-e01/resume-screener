@@ -35,7 +35,9 @@ class TestPDFParser(unittest.TestCase):
         result = extract_text_from_pdf(corrupt_data)
         
         self.assertFalse(result.success)
-        self.assertIn("File signature mismatch", result.error)
+        # Error message indicates the file is not a valid PDF (not "File signature mismatch"
+        # — that was an older version of the message)
+        self.assertIn("valid PDF", result.error)
 
     def test_empty_bytes_handling(self):
         result = extract_text_from_pdf(b"")

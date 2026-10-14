@@ -11,16 +11,25 @@ __pycache__/
 *.so
 .pytest_cache/
 
+# Compiled bytecode (anywhere in tree)
+*.pyc
+*.pyo
+
 # Environment and sensitive secrets
 .env
 .streamlit/secrets.toml
+
+# Application data and uploads (NEVER commit these)
+uploaded_resumes/
+data/
+*.db
+*.sqlite
+*.sqlite3
 
 # OS artifacts
 .DS_Store
 Thumbs.db
 
-# Output and temp files
-uploads/
-temp/
-*.pdf
-!sample_resumes/*.pdf
+# Loose .pyc files that ended up in the project root
+candidate_portal.cpython-*.pyc
+recruiter_dashboard.cpython-*.pyc
