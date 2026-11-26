@@ -48,6 +48,7 @@ def ensure_storage() -> None:
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
+                phone TEXT NOT NULL DEFAULT '',
                 target_role TEXT NOT NULL,
                 years_exp REAL NOT NULL DEFAULT 0,
                 original_filename TEXT NOT NULL,
@@ -83,6 +84,11 @@ def ensure_storage() -> None:
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_created ON candidates(created_at DESC)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_screenings_candidate ON screenings(candidate_id, screened_at DESC)")
+        existing_cols = {
+            row[1] for row in conn.execute("PRAGMA table_info(candidates)").fetchall()
+        }
+        if "phone" not in existing_cols:
+            conn.execute("ALTER TABLE candidates ADD COLUMN phone TEXT NOT NULL DEFAULT ''")
         conn.commit()
 
     _storage_initialized = True
@@ -112,6 +118,7 @@ def save_resume(
     *,
     name: str,
     email: str,
+    phone: str = "",
     target_role: str,
     years_exp: float,
     original_filename: str,
@@ -154,13 +161,13 @@ def save_resume(
                 conn.execute(
                     """
                     UPDATE candidates
-                    SET name=?, target_role=?, years_exp=?, original_filename=?,
+                    SET name=?, phone=?, target_role=?, years_exp=?, original_filename=?,
                         stored_filename=?, file_path=?, file_size_bytes=?, page_count=?,
                         word_count=?, parse_status=?, source=?, updated_at=?
                     WHERE id=?
                     """,
                     (
-                        name.strip(), target_role.strip(), float(years_exp), safe_original_filename,
+                        name.strip(), phone.strip(), target_role.strip(), float(years_exp), safe_original_filename,
                         stored_filename, str(destination.relative_to(BASE_DIR)), len(file_bytes),
                         int(page_count), int(word_count), parse_status, source, now, candidate_id,
                     ),
@@ -173,13 +180,13 @@ def save_resume(
                 conn.execute(
                     """
                     INSERT INTO candidates
-                    (id, name, email, target_role, years_exp, original_filename, stored_filename,
+                    (id, name, email, phone, target_role, years_exp, original_filename, stored_filename,
                      file_path, file_size_bytes, page_count, word_count, parse_status, source,
                      created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        candidate_id, name.strip(), normalized_email, target_role.strip(), float(years_exp),
+                        candidate_id, name.strip(), normalized_email, phone.strip(), target_role.strip(), float(years_exp),
                         safe_original_filename, stored_filename, str(destination.relative_to(BASE_DIR)),
                         len(file_bytes), int(page_count), int(word_count), parse_status, source, now, now,
                     ),
