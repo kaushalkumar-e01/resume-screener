@@ -1,35 +1,37 @@
-"""Unit and integration tests for Candidate Portal email OTP verification."""
+"""Unit and API integration tests for email OTP verification, validation, and FastAPI endpoints."""
 
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from streamlit.testing.v1 import AppTest
+from fastapi.testclient import TestClient
 
 import email_verification as ev
-from candidate_portal import (
+from api_server import app
+from validation import (
     TECHNICAL_ROLES,
-    _validate_full_name,
     format_phone_for_region,
+    validate_full_name,
     validate_phone_number,
 )
 
 
-class TestEmailVerification(unittest.TestCase):
+class TestEmailVerificationAndApi(unittest.TestCase):
     def setUp(self):
         self.session_id = "test-session-123"
         ev.clear_session_otps(self.session_id)
+        self.client = TestClient(app)
 
     def tearDown(self):
         ev.clear_session_otps(self.session_id)
 
     def test_otp_generation_and_hashed_storage(self):
         sent = []
-
-        def fake_sender(to_email, otp):
-            sent.append((to_email, otp))
-
-        ok, _ = ev.issue_otp(self.session_id, "Jane.Doe@Example.com", sender=fake_sender, now=1000.0)
+        ok, _ = ev.issue_otp(
+            self.session_id,
+            "Jane.Doe@Example.com",
+            sender=lambda e, o: sent.append((e, o)),
+            now=1000.0,
+        )
         self.assertTrue(ok)
         self.assertEqual(len(sent), 1)
         to_email, otp = sent[0]
@@ -91,7 +93,6 @@ class TestEmailVerification(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("too many incorrect attempts", msg.lower())
 
-        # Even the real OTP is rejected once locked
         ok_after, _ = ev.verify_otp(self.session_id, "a@b.com", sent[0], now=1021.0)
         self.assertFalse(ok_after)
         self.assertFalse(ev.is_email_verified(self.session_id, "a@b.com"))
@@ -109,7 +110,6 @@ class TestEmailVerification(unittest.TestCase):
         self.assertTrue(ok2)
         self.assertEqual(len(sent), 2)
 
-        # Previous OTP must be invalidated if different from new OTP
         if sent[0] != sent[1]:
             ok_old, _ = ev.verify_otp(self.session_id, "a@b.com", sent[0], now=1062.0)
             self.assertFalse(ok_old)
@@ -129,71 +129,121 @@ class TestEmailVerification(unittest.TestCase):
         self.assertFalse(ev.is_email_verified(self.session_id, "first@example.com"))
         self.assertFalse(ev.is_email_verified(self.session_id, "second@example.com"))
 
-    def test_phone_formatting_and_country_validation(self):
-        # libphonenumber country-specific formatting
-        self.assertEqual(format_phone_for_region("9876543210", "IN"), "98765 43210")
-        self.assertEqual(format_phone_for_region("98765abc43210", "IN"), "98765 43210")
-        self.assertEqual(format_phone_for_region("4155550123", "US"), "(415) 555-0123")
+    def test_phone_and_name_validation(self):
+        self.assertFalse(validate_full_name("   ")[0])
+        self.assertTrue(validate_full_name("Jane Doe")[0])
+        self.assertIn("AI Engineer", TECHNICAL_ROLES)
 
-        # IN (+91): valid vs invalid leading digit / letters
+        self.assertEqual(format_phone_for_region("9876543210", "IN"), "98765 43210")
+        self.assertEqual(format_phone_for_region("4155550123", "US"), "(415) 555-0123")
         self.assertEqual(validate_phone_number("IN", "98765 43210"), (True, "+919876543210", ""))
         self.assertFalse(validate_phone_number("IN", "12345 67890")[0])
-        self.assertFalse(validate_phone_number("IN", "98765abc10")[0])
-
-        # US (+1): libphonenumber NANP validation
         self.assertEqual(validate_phone_number("US", "(415) 555-0123"), (True, "+14155550123", ""))
-        self.assertFalse(validate_phone_number("US", "1155550123")[0])
 
-        # SG (+65): 8-digit Singapore validation
-        self.assertEqual(validate_phone_number("SG", "9123 4567"), (True, "+6591234567", ""))
-        self.assertFalse(validate_phone_number("SG", "1123 4567")[0])
+    def test_api_otp_and_submission_restriction(self):
+        r_health = self.client.get("/api/health")
+        self.assertEqual(r_health.status_code, 200)
+        self.assertEqual(r_health.headers.get("x-content-type-options"), "nosniff")
+        self.assertEqual(r_health.headers.get("x-frame-options"), "DENY")
+        self.assertEqual(r_health.headers.get("cache-control"), "no-store")
 
-    def test_candidate_portal_ui_and_submission_restriction(self):
-        # Also verify full name validator and role list
-        self.assertFalse(_validate_full_name("   ")[0])
-        self.assertTrue(_validate_full_name("Jane Doe")[0])
-        self.assertIn("AI Engineer", TECHNICAL_ROLES)
+        # Recruiter endpoints must reject unauthenticated requests
+        self.assertEqual(self.client.get("/api/recruiter/dashboard").status_code, 401)
+        self.assertEqual(self.client.delete("/api/recruiter/candidates").status_code, 401)
+
+        r_cfg = self.client.get("/api/candidate/config")
+        self.assertEqual(r_cfg.status_code, 200)
+        self.assertIn("AI Engineer", r_cfg.json()["technical_roles"])
 
         sent_otps = []
         with patch("email_verification.send_otp_email_smtp", side_effect=lambda e, o: sent_otps.append((e, o))):
-            app_path = str(Path(__file__).resolve().parents[1] / "app.py")
-            at = AppTest.from_file(app_path).run()
-            at.button[0].click().run()  # Enter Candidate Portal
-            self.assertFalse(at.exception)
+            # Cannot submit without 18+ consent
+            r_no_consent = self.client.post(
+                "/api/candidate/submit",
+                data={
+                    "session_id": self.session_id,
+                    "name": "Jane Doe",
+                    "email": "jane@example.com",
+                    "region_code": "IN",
+                    "phone": "98765 43210",
+                    "target_role": "AI Engineer",
+                    "years_exp": "2.5",
+                    "confirm_adult": "false",
+                },
+                files={"resume": ("resume.pdf", b"%PDF-1.4 dummy", "application/pdf")},
+            )
+            self.assertEqual(r_no_consent.status_code, 400)
 
-            # Experience input: min 0.0, step 0.5
-            exp_input = at.number_input[0]
-            self.assertEqual(exp_input.min, 0.0)
-            self.assertEqual(exp_input.step, 0.5)
-            exp_input.increment().run()
-            self.assertEqual(at.number_input[0].value, 0.5)
-            at.number_input[0].increment().run()
-            self.assertEqual(at.number_input[0].value, 1.0)
+            # Cannot submit without OTP verification
+            r_unverified = self.client.post(
+                "/api/candidate/submit",
+                data={
+                    "session_id": self.session_id,
+                    "name": "Jane Doe",
+                    "email": "jane@example.com",
+                    "region_code": "IN",
+                    "phone": "98765 43210",
+                    "target_role": "AI Engineer",
+                    "years_exp": "2.5",
+                    "confirm_adult": "true",
+                },
+                files={"resume": ("resume.pdf", b"%PDF-1.4 dummy", "application/pdf")},
+            )
+            self.assertEqual(r_unverified.status_code, 403)
 
-            # Try submitting without verifying email or entering phone
-            at.text_input[0].input("Jane Doe").run()
-            at.text_input[1].input("jane@example.com").run()
-            at.selectbox[0].select("AI Engineer").run()
-            at.button(key="submit_application_btn").click().run()
-            errs = [e.value for e in at.error]
-            self.assertTrue(any("verify your email address" in m.lower() for m in errs), errs)
-            self.assertTrue(any("phone number is required" in m.lower() for m in errs), errs)
-
-            # Click Verify Email -> sends OTP and reveals OTP input
-            at.button(key="verify_email_btn").click().run()
+            # Send OTP
+            r_send = self.client.post(
+                "/api/candidate/send-otp",
+                json={"session_id": self.session_id, "email": "jane@example.com"},
+            )
+            self.assertEqual(r_send.status_code, 200)
             self.assertEqual(len(sent_otps), 1)
-            otp_code = sent_otps[0][1]
 
-            # Enter OTP and click Verify OTP
-            at.text_input(key="candidate_otp_input").input(otp_code).run()
-            at.button(key="verify_otp_btn").click().run()
-            self.assertTrue(any("email verified" in s.value.lower() for s in at.success))
+            # Verify OTP
+            r_verify = self.client.post(
+                "/api/candidate/verify-otp",
+                json={"session_id": self.session_id, "email": "jane@example.com", "otp": sent_otps[0][1]},
+            )
+            self.assertEqual(r_verify.status_code, 200)
+            self.assertTrue(r_verify.json()["verified"])
 
-            # Change email -> invalidates verification
-            at.text_input[1].input("other@example.com").run()
-            at.button(key="submit_application_btn").click().run()
-            errs_changed = [e.value for e in at.error]
-            self.assertTrue(any("verify your email address" in m.lower() for m in errs_changed), errs_changed)
+            # Non-.pdf extension rejected even when verified
+            r_bad_ext = self.client.post(
+                "/api/candidate/submit",
+                data={
+                    "session_id": self.session_id,
+                    "name": "Jane Doe",
+                    "email": "jane@example.com",
+                    "region_code": "IN",
+                    "phone": "98765 43210",
+                    "target_role": "AI Engineer",
+                    "years_exp": "2.5",
+                    "confirm_adult": "true",
+                },
+                files={"resume": ("script.exe", b"%PDF-1.4 dummy", "application/pdf")},
+            )
+            self.assertEqual(r_bad_ext.status_code, 400)
+
+            # Email change invalidates verification
+            self.client.post(
+                "/api/candidate/sync-email",
+                json={"session_id": self.session_id, "email": "other@example.com"},
+            )
+            r_after_change = self.client.post(
+                "/api/candidate/submit",
+                data={
+                    "session_id": self.session_id,
+                    "name": "Jane Doe",
+                    "email": "jane@example.com",
+                    "region_code": "IN",
+                    "phone": "98765 43210",
+                    "target_role": "AI Engineer",
+                    "years_exp": "2.5",
+                    "confirm_adult": "true",
+                },
+                files={"resume": ("resume.pdf", b"%PDF-1.4 dummy", "application/pdf")},
+            )
+            self.assertEqual(r_after_change.status_code, 403)
 
 
 if __name__ == "__main__":

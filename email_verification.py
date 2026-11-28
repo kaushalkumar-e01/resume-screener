@@ -123,6 +123,15 @@ def sync_email_change(session_id: str, email: str) -> None:
             _OTP_STORE.pop(session_id, None)
 
 
+def _mask_email(email: str) -> str:
+    """Mask an email address for safe server logging."""
+    if "@" not in email:
+        return "***"
+    local, domain = email.split("@", 1)
+    prefix = local[:1] if local else "*"
+    return f"{prefix}***@{domain}"
+
+
 def issue_otp(
     session_id: str,
     email: str,
@@ -172,8 +181,8 @@ def issue_otp(
                     _OTP_STORE[session_id] = previous_record
                 else:
                     _OTP_STORE.pop(session_id, None)
-        logger.exception("Failed to send OTP email to %s", normalized)
-        return False, f"Could not send verification email: {exc}"
+        logger.exception("Failed to send OTP email to %s", _mask_email(normalized))
+        return False, "Could not send verification email. Please verify SMTP configuration or try again later."
 
     return True, f"A 4-digit verification code has been sent to {normalized}. It expires in 5 minutes."
 

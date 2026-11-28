@@ -1,0 +1,258 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --bg-canvas: #f5f3ee;
+  --bg-surface: #ffffff;
+  --bg-soft: #dce6f2;
+  --bg-subtle: #f8fafc;
+  --brand-primary: #244a75;
+  --brand-primary-hover: #4979a8;
+  --brand-accent: #4979a8;
+  --text-heading: #1e293b;
+  --text-primary: #334155;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --border-input: #cbd5e1;
+  --focus-ring: #244a75;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-track: #f5f3ee;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  accent-color: var(--brand-primary);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-canvas: #0d1424;
+  --bg-surface: #151f33;
+  --bg-soft: #1e2d4a;
+  --bg-subtle: #111a2c;
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #60a5fa;
+  --brand-accent: #60a5fa;
+  --text-heading: #f1f5f9;
+  --text-primary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #24334d;
+  --border-input: #334766;
+  --focus-ring: #60a5fa;
+  --scrollbar-thumb: #334766;
+  --scrollbar-track: #0d1424;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  h1 {
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: var(--text-heading);
+  }
+
+  h2,
+  h3 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-heading);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Skip to content link */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 1rem;
+  z-index: 100;
+  background-color: var(--brand-primary);
+  color: #ffffff;
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* Theme-aware surfaces */
+.surface-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(36, 74, 117, 0.04);
+}
+
+:root[data-theme="dark"] .surface-card {
+  box-shadow: 0 4px 20px rgba(2, 6, 23, 0.45);
+}
+
+.surface-card-interactive {
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.surface-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-accent);
+  box-shadow: 0 6px 18px rgba(36, 74, 117, 0.1);
+}
+
+.surface-input {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
+}
+
+.surface-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.surface-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--bg-soft);
+  outline: none;
+}
+
+.surface-soft {
+  background-color: var(--bg-soft);
+  color: var(--brand-primary);
+}
+
+.text-heading {
+  color: var(--text-heading);
+}
+
+.text-body {
+  color: var(--text-primary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.border-theme {
+  border-color: var(--border-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface-card-interactive,
+  .surface-card-interactive:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Responsive container-query leaderboard table */
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-inline-size: 100%;
+  max-block-size: min(520px, 75vh);
+  container-type: inline-size;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.leaderboard-table thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background-color: var(--bg-subtle);
+}
+
+@container (width < 640px) {
+  .leaderboard-table,
+  .leaderboard-table thead,
+  .leaderboard-table tbody,
+  .leaderboard-table tr,
+  .leaderboard-table th,
+  .leaderboard-table td {
+    display: block;
+  }
+
+  .leaderboard-table thead {
+    display: none;
+  }
+
+  .leaderboard-table tr {
+    margin-block-end: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    background-color: var(--bg-surface);
+  }
+
+  .leaderboard-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border: none;
+    min-width: 0;
+  }
+
+  .leaderboard-table td::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+}
+
+/* Print stylesheet for recruiter screening reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  header,
+  footer,
+  .no-print,
+  .print-confidential {
+    display: none !important;
+  }
+
+  .surface-card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid;
+  }
+
+  .table-wrapper {
+    overflow: visible !important;
+    max-block-size: none !important;
+  }
+}
